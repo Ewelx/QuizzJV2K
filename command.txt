@@ -1,0 +1,4 @@
+pip install tkinter
+pip install pygame
+
+longueur/largeur : 0.625
