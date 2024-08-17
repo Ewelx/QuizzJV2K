@@ -1,32 +1,25 @@
-import json
-import os
+import threading
 import random
 import pygame
-import threading
+import json
+import os
 
 # Initialize Pygame mixer
 pygame.mixer.init()
 
-# Load JSON config
+# Load the configuration from the JSON file.
 def load_config():
-    """Load the configuration from the JSON file."""
     if os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, 'r') as file:
             return json.load(file)
     return {}
-
-# Save the json config changed
-def save_config(config):
-    """Save the configuration to the JSON file."""
-    with open(CONFIG_FILE, 'w') as file:
-        json.dump(config, file, indent=4)
 
 # Constants
 CONFIG_FILE = "config.json"
 MUSIC_FOLDER = "assets/audios"
 config = load_config()
 PLAYLIST_ACTIVATED = config.get("playlist_activate", True)
-PLAYLIST_VOLUME = config.get("playlist_sound", 50) / 100.0
+PLAYLIST_VOLUME = config.get("playlist_sound") / 100.0
 
 # Playlist class
 class Playlist:
@@ -36,16 +29,16 @@ class Playlist:
         self.playlist = self.load_music_files()
         self.played_songs = []
 
+    # Load all MP3 files from the specified folder.
     def load_music_files(self):
-        """Load all MP3 files from the specified folder."""
         return [os.path.join(self.folder, file) for file in os.listdir(self.folder) if file.endswith(".mp3")]
 
+    # Shuffle the playlist.
     def shuffle_playlist(self):
-        """Shuffle the playlist."""
         random.shuffle(self.playlist)
 
+    # Play the next song in the playlist.
     def play_next_song(self):
-        """Play the next song in the playlist."""
         if not self.playlist:
             print("No songs in the playlist.")
             return
@@ -66,8 +59,8 @@ class Playlist:
             self.play_song(next_song)
             self.played_songs.append(next_song)
 
+    # Play the given MP3 file.
     def play_song(self, song_path):
-        """Play the given MP3 file."""
         try:
             pygame.mixer.music.load(song_path)
             pygame.mixer.music.set_volume(self.volume)
@@ -76,8 +69,8 @@ class Playlist:
         except Exception as e:
             print(f"Error playing {song_path}: {e}")
 
+    # Check if the current song has ended and play the next one.
     def check_end_and_play_next(self):
-        """Check if the current song has ended and play the next one."""
         if not pygame.mixer.music.get_busy():
             self.play_next_song()
 
@@ -91,7 +84,7 @@ def playlist_runner():
     # Main loop to keep the program running and checking if the song has ended
     while PLAYLIST_ACTIVATED:
         playlist.check_end_and_play_next()
-        pygame.time.wait(1000)  # Wait 1 second before checking again
+        pygame.time.wait(100)  # Wait 1 second before checking again
     
     pygame.mixer.music.stop()  # Stop the music immediately if PLAYLIST_ACTIVATED is False
     print("Playlist stopped.")
@@ -114,7 +107,6 @@ def toggle_playlist():
     
     # Update the config file
     config['playlist_activate'] = PLAYLIST_ACTIVATED
-    save_config(config)
     
     if PLAYLIST_ACTIVATED:
         start_playlist()
