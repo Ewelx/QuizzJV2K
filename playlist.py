@@ -1,25 +1,19 @@
+from functions import load_config
 import threading
 import random
 import pygame
-import json
 import os
 
 # Initialize Pygame mixer
 pygame.mixer.init()
 
-# Load the configuration from the JSON file.
-def load_config():
-    if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, 'r') as file:
-            return json.load(file)
-    return {}
-
 # Constants
 CONFIG_FILE = "config.json"
 MUSIC_FOLDER = "assets/audios"
-config = load_config()
+config = load_config(CONFIG_FILE)
 PLAYLIST_ACTIVATED = config.get("playlist_activate", True)
 PLAYLIST_VOLUME = config.get("playlist_sound") / 100.0
+playlist_thread = None
 
 # Playlist class
 class Playlist:
@@ -112,4 +106,5 @@ def toggle_playlist():
         start_playlist()
     else:
         stop_playlist()
+    
 

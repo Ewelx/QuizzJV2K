@@ -1,19 +1,11 @@
-from screeninfo import get_monitors
+from functions import get_current_screen
+from options import open_options_window
 from PIL import ImageTk, Image
 import tkinter as tk
 import playlist
 import json
+import sys
 import os
-
-# Get the current screen on which the application is
-def get_current_screen(window):
-    x = window.winfo_x()
-    y = window.winfo_y()
-
-    for monitor in get_monitors():
-        if monitor.x <= x < monitor.x + monitor.width and monitor.y <= y < monitor.y + monitor.height:
-            return monitor
-    return None
 
 # Constants
 CONFIG_FILE = 'config.json'
@@ -150,14 +142,21 @@ def button_command(name):
     elif name == "Delete Quizz":
         print("4")
     elif name == "Options":
-        print("5")
+        open_options_window(root)
     else:
-        root.destroy()
-
+        on_closing()
+        
 update_sizes()
 
 # Start the playlist
 playlist.start_playlist()
+
+# On application window closing
+def on_closing():
+        playlist.stop_playlist()
+        root.destroy()
+        sys.exit()
+root.protocol("WM_DELETE_WINDOW", on_closing)
 
 # Start the Tkinter event loop
 root.mainloop()
